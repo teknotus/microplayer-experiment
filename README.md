@@ -7,7 +7,7 @@ Started with an empty head, and body. Then started adding stuff via javascript c
 
 # References
 
-[Reverse engineering YouTube postMessage](http://stackoverflow.com/questions/7443578/youtube-iframe-api-how-do-i-control-a-iframe-player-thats-already-in-the-html)
-[Blog Post on YouTube/Vimeo postMessage](https://eamann.com/tech/youtube-postmessage/)
-[YouTube reference](https://developers.google.com/youtube/js_api_reference)
-[Vimeo referenc](http://developer.vimeo.com/player/js-api#universal-with-postmessage)
+* [Reverse engineering YouTube postMessage](http://stackoverflow.com/questions/7443578/youtube-iframe-api-how-do-i-control-a-iframe-player-thats-already-in-the-html)
+* [Blog Post on YouTube/Vimeo postMessage](https://eamann.com/tech/youtube-postmessage/)
+* [YouTube reference](https://developers.google.com/youtube/js_api_reference)
+* [Vimeo referenc](http://developer.vimeo.com/player/js-api#universal-with-postmessage)
