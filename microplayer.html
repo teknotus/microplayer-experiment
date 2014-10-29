@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>microplayer</title>
+<script>
+var contain,myframe,fsheading,sandbox;
+var messageData = {};
+window.onload = function(e){
+contain = document.createElement('div');
+contain.style.height='100%';
+document.body.style.border='0';
+document.body.style.padding='0';
+document.body.style.margin='0';
+document.body.style['background-color']='#000';
+document.body.style.color='#999';
+myframe = document.createElement('iframe');
+sandbox = document.createAttribute('sandbox');
+sandbox.value="allow-same-origin allow-scripts";
+myframe.setAttributeNode(sandbox);
+myframe.onload = iframeLoaded;
+myframe.onerror = function(e){
+  console.log('iframe error');
+}
+window.onerror = function(e){
+  console.log('window error');
+}
+contain.appendChild(myframe);
+myframe.id='foo';
+myframe.width='100%';
+myframe.height='100%';
+myframe.style.position = 'absolute';
+myframe.style.border = '0px';
+var stdfs = document.createAttribute('allowfullscreen');
+var wkfs = document.createAttribute('webkitallowfullscreen');
+var mfs = document.createAttribute('mozallowfullscreen');
+myframe.setAttributeNode(stdfs);
+myframe.setAttributeNode(wkfs);
+myframe.setAttributeNode(mfs);
+stdfs = document.createAttribute('allowfullscreen');
+wkfs = document.createAttribute('webkitallowfullscreen');
+mfs = document.createAttribute('mozallowfullscreen');
+contain.setAttributeNode(stdfs);
+contain.setAttributeNode(wkfs);
+contain.setAttributeNode(mfs);
+document.body.appendChild(contain);
+fsheading = document.createElement('button');
+fsheading.style.position = 'fixed';
+fsheading.style.bottom = '12px';
+fsheading.style.right = '35px';
+var fstext = document.createTextNode('Go Fullscreen');
+fsheading.appendChild(fstext);
+document.body.appendChild(fsheading);
+fsheading.addEventListener('click',gofullscreen,false);
+window.addEventListener('message',gotMessage,false);
+myframe.src = 'http://www.youtube.com/embed/9bZkp7q19f0?iv_load_policy=3&rel=0&modestbranding=0&showinfo=1&start=245&end=248&enablejsapi=1&autohide=1'
+window.setTimeout(function(){
+myframe.contentWindow.postMessage(JSON.stringify({"event": "command","func": "loadVideoById","args": ['ASO_zypdnsQ'],"id": "foo"}), "*");
+},11000);
+}
+window.setTimeout(function(){
+myframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups');
+myframe.src = "http://player.vimeo.com/video/27855315?api=1";
+},20000);
+window.setTimeout(function(){
+myframe.contentWindow.postMessage(JSON.stringify({"method": "play", "value": "28544156" }), "*");
+},25000);
+window.setTimeout(function(){
+myframe.src = "http://player.vimeo.com/video/28544156?api=1";
+},30000);
+window.setTimeout(function(){
+myframe.contentWindow.postMessage(JSON.stringify({"method": "play", "value": "28544156" }), "*");
+},35000);
+function iframeLoaded(e){
+  console.log('iframe loaded');
+// youtube
+myframe.contentWindow.postMessage(JSON.stringify({"event": "listening", "id":"foo" }), "*");
+// vimeo
+myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "ready" }), "*");
+myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "loadProgress" }), "*");
+myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "playProgress" }), "*");
+myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "play" }), "*");
+myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "pause" }), "*");
+myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "finish" }), "*");
+myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "seek" }), "*");
+
+}
+function gotMessage(e){
+//  console.log('got message: ' + e.data);
+  var ytPlayerStates = {
+    '-1': 'unstarted',
+    '0':  'ended',
+    '1':  'playing',
+    '2':  'paused',
+    '3':  'buffering',
+    '4':  'cued'
+  };
+  var origin = e.origin;
+  var source = e.source
+  var srcElement = e.srcElement;
+  var data = JSON.parse(e.data);
+  if(typeof messageData[origin] === 'undefined'){
+    messageData[origin] = {};
+  }
+  var base = messageData[origin];
+  for(var key in data){
+    if(typeof base[key] === 'undefined'){
+      base[key] = {};
+    }
+    if(key === 'event'){
+      base.event[data.event] = true;
+    } else if(key === 'id'){
+      base.id = data[key];
+    } else if(key === 'info'){
+      if(typeof base.info === 'undefined'){
+        base.info = {};
+      }
+      var info = data.info;
+      for(var infoKey in info){
+//        console.log('infoKey: ' + infoKey);
+        if(typeof info[infoKey] !== 'undefined' &&
+          base.info[infoKey] !== info[infoKey] &&
+          typeof info[infoKey] !== 'object' &&
+          !/^(currentTime|videoLoadedFraction|videoBytesLoaded)$/
+            .test(infoKey)){
+              var from,to;
+              if(infoKey === 'playerState'){
+                from = ytPlayerStates[base.info[infoKey]];
+                to = ytPlayerStates[info[infoKey]];
+              } else {
+                from = base.info[infoKey];
+                to = info[infoKey];
+              }
+            console.log('player ' + infoKey + ' from: ' + from +
+              ' to: ' + to);
+        }
+        if(typeof info[infoKey] === 'object' &&
+           typeof base.info[infoKey] === 'object'){
+          for(var objKey in info[infoKey]){
+            if(base.info[infoKey][objKey] !== info[infoKey][objKey]){
+              console.log( infoKey + ':' + objKey + ' changed from ' +
+              base.info[infoKey][objKey] + ' to ' +
+              info[infoKey][objKey]);
+            }
+          }
+        }
+        base.info[infoKey] = info[infoKey];
+      }
+    } else if(key === 'data'){
+      if(typeof base.data === 'undefined'){
+        base.data = {};
+      }
+      for(var dataKey in data.data){
+        base.data[dataKey] = data.data[dataKey];
+      }
+    } else {
+      console.log('unknown key: ' + key);
+    }
+  }
+//  console.log('parsed');
+}
+function gofullscreen(){
+console.log('trying to fullscreen');
+//myframe.webkitRequestFullScreen();
+//myframe.mozRequestFullScreen();
+//myframe.requestFullscreen();
+if (myframe.requestFullscreen) {
+  myframe.requestFullscreen();
+} else if (myframe.mozRequestFullScreen) {
+  myframe.mozRequestFullScreen();
+} else if (myframe.webkitRequestFullscreen) {
+  myframe.webkitRequestFullscreen();
+}
+}
+</script>
+</head>
+<body>
+</body>
+</html>
