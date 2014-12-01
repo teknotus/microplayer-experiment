@@ -5,7 +5,7 @@ An experimental web video player
 
 Started with an empty head, and body. Then started adding stuff via javascript console, and when stuff worked okay I copied it to a script tag in the head. I plan on writing an Angular directive based on this, but the core currently has no dependencies. This won't work when loaded into browser as a file. It must be run from at least a localhost web server do to how web security works. 
 
-Note it seems the current CSS only works on chrome.
+Note the CSS for microplayer5 works with firefox, but previous versions haven't been fixed yet.
 
 #Live demo
 
