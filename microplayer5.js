@@ -55,9 +55,9 @@ function PlayerFactory(){
 	this.pDiv = document.createElement('div');
 	this.pDiv.style.display = 'inline-block';
 	this.pDiv.style.position = 'fixed';
-	this.dummy = document.createElement('div');
+/*	this.dummy = document.createElement('div');
 	this.dummy.style['padding-top'] = '56.25%';
-	this.pDiv.appendChild(this.dummy);
+	this.pDiv.appendChild(this.dummy); */
 	this.pFrame = document.createElement('iframe');
 	var seamless = document.createAttribute('seamless');
 	this.pFrame.setAttributeNode(seamless);

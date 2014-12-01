@@ -7,6 +7,11 @@
 .player{
     -webkit-transition: all 1s;
     left: 0%;}
+.player:after {
+    content: "";
+    display: block;
+    padding-top: 56.25%;
+}
 .player-bottomleft, .player-bottomright,
 .player-bottomcenterleft, .player-bottomcenterright{ 
     top: 100%;
@@ -53,6 +58,8 @@
     left: 0%;
     width: 50%;
     -webkit-transform: translate(100%,0%);
+    -mox-transform: translate(100%,0%);
+    transform: translate(100%,0%);
 }
 .player-transitions {
     -moz-transform: translate(-50%);
