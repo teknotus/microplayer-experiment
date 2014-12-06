@@ -23,27 +23,7 @@ function genStar(n,s){
 	p.push(Math.cos(i*a + a/(n-1))*s);
     } return 'M' + p.join(' ') + 'Z';
 }
-//stdfs = document.createAttribute('allowfullscreen');
-//wkfs = document.createAttribute('webkitallowfullscreen');
-//mfs = document.createAttribute('mozallowfullscreen');
-//contain.setAttributeNode(stdfs);
-//contain.setAttributeNode(wkfs);
-//contain.setAttributeNode(mfs);
-//fsheading = document.createElement('button');
-//fsheading.style.position = 'fixed';
-//fsheading.style.bottom = '12px';
-//fsheading.style.right = '35px';
-//var fstext = document.createTextNode('Go Fullscreen');
-//fsheading.appendChild(fstext);
-//document.body.appendChild(fsheading);
-//fsheading.addEventListener('click',gofullscreen,false);
-
 window.addEventListener('message',gotMessage,false);
-//myframe.src = 'http://www.youtube.com/embed/9bZkp7q19f0?iv_load_policy=3&rel=0&modestbranding=0&showinfo=1&start=245&end=248&enablejsapi=1&autohide=1'
-//window.setTimeout(function(){
-//myframe.contentWindow.postMessage(JSON.stringify({"event": "command","func": "loadVideoById","args": ['ASO_zypdnsQ'],"id": "foo"}), "*");
-//},11000);
-
 
 function PlayerFactory(){
     this.players = [];
@@ -54,11 +34,7 @@ function PlayerFactory(){
     };
     Player.prototype.init = function(){
 	this.pDiv = document.createElement('div');
-//	this.pDiv.style.display = 'inline-block';
 	this.pDiv.style.position = 'fixed';
-/*	this.dummy = document.createElement('div');
-	this.dummy.style['padding-top'] = '56.25%';
-	this.pDiv.appendChild(this.dummy); */
 	this.pFrame = document.createElement('iframe');
 	var seamless = document.createAttribute('seamless');
 	this.pFrame.setAttributeNode(seamless);
@@ -254,7 +230,6 @@ PlayerFactory.prototype.addListener = function(){
     window.addEventListener('message',this.onMessage.bind(this),false);
     return this;
 };
-//var contain,foo,bar,baz,qux;
 var factory = new PlayerFactory().addListener();
 function getVideoId(url) {
     //var url = Android.getUrl();
@@ -276,11 +251,6 @@ window.onload = function() {
     console.log("height: " + document.documentElement.clientHeight);
     contain = document.createElement('div');
     contain.className='video-contain';
-/*    document.body.style.border='0';
-    document.body.style.padding='0';
-    document.body.style.margin='0';
-    document.body.style['background-color']='#000';
-    document.body.style.color='#999'; */
     foo = factory.createPlayer('foo');
     foo.pDiv.className='player player-topleft';
     bar = factory.createPlayer('bar');
@@ -295,20 +265,6 @@ window.onload = function() {
     contain.appendChild(bar.pDiv);
 //    contain.appendChild(baz.pDiv);
 //    contain.appendChild(qux.pDiv);
-/*    playbutton = document.createElement('button');
-    playclick = document.createAttribute('onclick');
-    playclick.nodeValue = "playAll()";
-    playbutton.setAttributeNode(playclick);
-    playbutton.innerHTML = 'play';
-    contain.appendChild(playbutton);*/
-    //myframe.style.position = 'absolute';
-    //myframe.style.border = '0px';
-/*    var stdfs = document.createAttribute('allowfullscreen');
-    var wkfs = document.createAttribute('webkitallowfullscreen');
-    var mfs = document.createAttribute('mozallowfullscreen');
-    contain.setAttributeNode(stdfs);
-    contain.setAttributeNode(wkfs);
-    contain.setAttributeNode(mfs);*/
     var bfc = document.body.firstChild;
     document.body.insertBefore(contain,bfc);
 //    var setting_top = Android.getTop();
@@ -379,33 +335,6 @@ window.onload = function() {
     //qux.dropDiv.addEventListener('click',makeBigListener, false);
     addPlayers()
 }
-//window.setTimeout(function(){
-//myframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-popups');
-//myframe.src = "http://player.vimeo.com/video/27855315?api=1";
-//},20000);
-//window.setTimeout(function(){
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "play", "value": "28544156" }), "*");
-//},25000);
-//window.setTimeout(function(){
-//myframe.src = "http://player.vimeo.com/video/28544156?api=1";
-//},30000);
-//window.setTimeout(function(){
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "play", "value": "28544156" }), "*");
-//},35000);
-
-//function iframeLoaded(e){
-//  console.log('iframe loaded');
-// youtube
-//myframe.contentWindow.postMessage(JSON.stringify({"event": "listening", "id":"foo" }), "*");
-// vimeo
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "ready" }), "*");
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "loadProgress" }), "*");
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "playProgress" }), "*");
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "play" }), "*");
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "pause" }), "*");
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "finish" }), "*");
-//myframe.contentWindow.postMessage(JSON.stringify({"method": "addEventListener", "value": "seek" }), "*");
-//}
 
 function gotMessage(e){
     //console.log('got message: ' + e.data);
