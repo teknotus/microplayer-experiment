@@ -1,11 +1,26 @@
+body {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background-color: #000;
+    color: #999;
+    overflow: hidden;
+}
+.video-contain {
+  height: 28.125vw;
+}
+.data-view {
+  height: calc(100vh - 28.125vw - 21px);
+  overflow-y: auto;
+}
 #angular{
     width: 100%;
-    height: 50%;
-    top: 50%;
-    position: absolute;
+    word-break: break-word;
 }
 .player{
-    -webkit-transition: all 1s;
+/*    -webkit-transition: all 1s;
+    -moz-transition: all 1s;
+    transition: all 1s;*/
     left: 0%;}
 .player:after {
     content: "";

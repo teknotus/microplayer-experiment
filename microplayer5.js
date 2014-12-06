@@ -47,13 +47,14 @@ window.addEventListener('message',gotMessage,false);
 
 function PlayerFactory(){
     this.players = [];
+    this.playerDir = {};
     var protocol = window.location.protocol;
     var Player = function(id){
 	this.id = id;
     };
     Player.prototype.init = function(){
 	this.pDiv = document.createElement('div');
-	this.pDiv.style.display = 'inline-block';
+//	this.pDiv.style.display = 'inline-block';
 	this.pDiv.style.position = 'fixed';
 /*	this.dummy = document.createElement('div');
 	this.dummy.style['padding-top'] = '56.25%';
@@ -69,6 +70,12 @@ function PlayerFactory(){
 	this.pFrame.style.right = '0px';
 	this.pFrame.style.bottom = '0px';
 	this.pFrame.style.left = '0px';
+        var wkfs = document.createAttribute('webkitallowfullscreen');
+        var mfs = document.createAttribute('mozallowfullscreen');
+        var stdfs = document.createAttribute('allowfullscreen');
+        this.pFrame.setAttributeNode(wkfs);
+        this.pFrame.setAttributeNode(mfs);
+        this.pFrame.setAttributeNode(stdfs);
 	this.pDiv.appendChild(this.pFrame);
 /*	this.dropDiv = document.createElement('div');
 	this.dropDiv.player = this;
@@ -111,7 +118,7 @@ function PlayerFactory(){
     };
     Player.prototype.registerListenersVimeo = function(){
 	var listeners = [
-	    'ready',
+	    'cuechange',
 	    'loadProgress',
 	    'playProgress',
 	    'play',
@@ -121,6 +128,19 @@ function PlayerFactory(){
 	];
 	for(var l = listeners.length, i = 0 ; i < l ; i++){
 	    this.post({"method": "addEventListener", "value": listeners[i] });
+	}
+    };
+    Player.prototype.getInfoVimeo = function(){
+	var infos = [
+	    'getVideoEmbedCode',
+	    'getVideoHeight',
+	    'getVideoWidth',
+	    'getVideoUrl',
+	    'getColor',
+	    'getVolume'
+	];
+	for(var l = infos.length, i = 0 ; i < l ; i++){
+	    this.post({"method": infos[i]});
 	}
     };
     Player.prototype.onIframeLoad = function(e){
@@ -168,7 +188,7 @@ function PlayerFactory(){
     };
     Player.prototype.loadPlayerYouTube = function(videoID,autoplay,cueStart){
 	var args = arguments;
-	this.pFrame.sandbox = "allow-same-origin allow-scripts";
+	this.pFrame.sandbox = "allow-same-origin allow-scripts allow-popups";
 	var url = protocol + '//www.youtube.com/embed/' + videoID + '?autohide=1' +
 	    '&iv_load_policy=3&rel=0&modestbranding=0&showinfo=1&enablejsapi=1&controls=1&vq=small';
 	if(args[1]){
@@ -204,9 +224,21 @@ function PlayerFactory(){
     this.createPlayer = function(id) {
 	var player = new Player(id);
 	this.players.push(player);
+        this.playerDir[id] = player;
 	player.init();
 	return player;
     };
+}
+PlayerFactory.prototype.getPlayer = function(id){
+  return this.playerDir[id];
+}
+PlayerFactory.prototype.whichPlayer = function(e){
+    for(var l = this.players.length, i = 0 ; i < l ; i++){
+	if(this.players[i].pFrame.contentWindow === e.source){
+	    var player = this.players[i];
+            return player;
+	}
+    }
 }
 PlayerFactory.prototype.onMessage = function(e){
     //console.log(e.origin);
@@ -243,12 +275,12 @@ window.onload = function() {
     console.log("width: " + document.documentElement.clientWidth);
     console.log("height: " + document.documentElement.clientHeight);
     contain = document.createElement('div');
-    contain.style.height='50%';
-    document.body.style.border='0';
+    contain.className='video-contain';
+/*    document.body.style.border='0';
     document.body.style.padding='0';
     document.body.style.margin='0';
     document.body.style['background-color']='#000';
-    document.body.style.color='#999';
+    document.body.style.color='#999'; */
     foo = factory.createPlayer('foo');
     foo.pDiv.className='player player-topleft';
     bar = factory.createPlayer('bar');
@@ -263,20 +295,20 @@ window.onload = function() {
     contain.appendChild(bar.pDiv);
 //    contain.appendChild(baz.pDiv);
 //    contain.appendChild(qux.pDiv);
-    playbutton = document.createElement('button');
+/*    playbutton = document.createElement('button');
     playclick = document.createAttribute('onclick');
     playclick.nodeValue = "playAll()";
     playbutton.setAttributeNode(playclick);
     playbutton.innerHTML = 'play';
-    contain.appendChild(playbutton);
+    contain.appendChild(playbutton);*/
     //myframe.style.position = 'absolute';
     //myframe.style.border = '0px';
-    var stdfs = document.createAttribute('allowfullscreen');
+/*    var stdfs = document.createAttribute('allowfullscreen');
     var wkfs = document.createAttribute('webkitallowfullscreen');
     var mfs = document.createAttribute('mozallowfullscreen');
     contain.setAttributeNode(stdfs);
     contain.setAttributeNode(wkfs);
-    contain.setAttributeNode(mfs);
+    contain.setAttributeNode(mfs);*/
     var bfc = document.body.firstChild;
     document.body.insertBefore(contain,bfc);
 //    var setting_top = Android.getTop();
@@ -393,59 +425,88 @@ function gotMessage(e){
 	messageData[origin] = {};
     }
     var base = messageData[origin];
-    for(var key in data){
-	if(typeof base[key] === 'undefined'){
-	    base[key] = {};
-	}
-	if(key === 'event'){
-	    base.event[data.event] = true;
-	} else if(key === 'id'){
-	    base.id = data[key];
-	} else if(key === 'info'){
-	    if(typeof base.info === 'undefined'){
-		base.info = {};
+    if(/youtube/.test(origin)){
+
+	for(var key in data){
+	    if(typeof base[key] === 'undefined'){
+		base[key] = {};
 	    }
-	    var info = data.info;
-	    for(var infoKey in info){
-		//        console.log('infoKey: ' + infoKey);
-		if(typeof info[infoKey] !== 'undefined' &&
-		   base.info[infoKey] !== info[infoKey] &&
-		   typeof info[infoKey] !== 'object' &&
-		   !/^(currentTime|videoLoadedFraction|videoBytesLoaded)$/
-		   .test(infoKey)){
-		    var from,to;
-		    if(infoKey === 'playerState'){
-			from = ytPlayerStates[base.info[infoKey]];
-			to = ytPlayerStates[info[infoKey]];
-		    } else {
-			from = base.info[infoKey];
-			to = info[infoKey];
-		    }
-		    console.log('player ' + infoKey + ' from: ' + from +
-				' to: ' + to);
+	    if(key === 'event'){
+		base.event[data.event] = true;
+	    } else if(key === 'id'){
+		base.id = data[key];
+	    } else if(key === 'info'){
+		if(typeof base.info === 'undefined'){
+		    base.info = {};
 		}
-		if(typeof info[infoKey] === 'object' &&
-		   typeof base.info[infoKey] === 'object'){
-		    for(var objKey in info[infoKey]){
-			if(base.info[infoKey][objKey] !== info[infoKey][objKey]){
-			    console.log( infoKey + ':' + objKey + ' changed from ' +
-					 base.info[infoKey][objKey] + ' to ' +
-					 info[infoKey][objKey]);
+		var info = data.info;
+		for(var infoKey in info){
+		    //        console.log('infoKey: ' + infoKey);
+		    if(typeof info[infoKey] !== 'undefined' &&
+		       base.info[infoKey] !== info[infoKey] &&
+		       typeof info[infoKey] !== 'object' &&
+		       !/^(currentTime|videoLoadedFraction|videoBytesLoaded)$/
+		       .test(infoKey)){
+			var from,to;
+			if(infoKey === 'playerState'){
+			    from = ytPlayerStates[base.info[infoKey]];
+			    to = ytPlayerStates[info[infoKey]];
+			} else {
+			    from = base.info[infoKey];
+			    to = info[infoKey];
+			}
+			console.log('player ' + infoKey + ' from: ' + from +
+				    ' to: ' + to);
+		    }
+		    if(typeof info[infoKey] === 'object' &&
+		       typeof base.info[infoKey] === 'object'){
+			for(var objKey in info[infoKey]){
+			    if(base.info[infoKey][objKey] !== info[infoKey][objKey]){
+				console.log( infoKey + ':' + objKey + ' changed from ' +
+					     base.info[infoKey][objKey] + ' to ' +
+					     info[infoKey][objKey]);
+			    }
 			}
 		    }
+		    base.info[infoKey] = info[infoKey];
 		}
-		base.info[infoKey] = info[infoKey];
+	    } else if(key === 'data'){
+		if(typeof base.data === 'undefined'){
+		    base.data = {};
+		}
+		for(var dataKey in data.data){
+		    base.data[dataKey] = data.data[dataKey];
+		}
+	    } else {
+		console.log('unknown key: ' + key);
 	    }
-	} else if(key === 'data'){
-	    if(typeof base.data === 'undefined'){
-		base.data = {};
-	    }
-	    for(var dataKey in data.data){
-		base.data[dataKey] = data.data[dataKey];
-	    }
-	} else {
-	    console.log('unknown key: ' + key);
 	}
+    } else if(/vimeo/.test(origin)){
+	//console.log('vimeo message');
+        var player = factory.getPlayer(data['player_id']);
+	if(typeof base[data['player_id']] === 'undefined'){
+	    base[data['player_id']] = {};
+	}
+        var pbase = base[data['player_id']];
+        if(typeof data.event !== 'undefined'){
+            if(data.event === 'ready'){
+		player.registerListenersVimeo();
+		player.getInfoVimeo();
+	    } else {
+		for(var key in data.data){
+		    if(typeof pbase[data.event] === 'undefined'){
+			pbase[data.event] = {};
+		    }
+		    if(data.event === 'playProgress'){
+			player.post({'method': 'getVolume'});
+		    }
+		    pbase[data.event][key] = data.data[key];
+		}
+            }
+        }
+        if(typeof data.method !== 'undefined'){
+            pbase[data.method] = data.value;
+        }
     }
     var scope = angular.element(document.getElementById("angular")).scope();
     scope.$apply(function(){
@@ -455,9 +516,6 @@ function gotMessage(e){
 }
 function gofullscreen(){
     console.log('trying to fullscreen');
-    //myframe.webkitRequestFullScreen();
-    //myframe.mozRequestFullScreen();
-    //myframe.requestFullscreen();
     if (myframe.requestFullscreen) {
 	myframe.requestFullscreen();
     } else if (myframe.mozRequestFullScreen) {

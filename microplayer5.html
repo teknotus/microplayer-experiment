@@ -10,13 +10,13 @@
   </head>
   <body>
     <div id="angular" ng-app="playerApp">
-      <button onclick="playAll()">play</button>
-      <button onclick="pauseAll()">pause</button>
-      <div ng-controller="playerController">
-        <!--{{JSON.stringify(data["https://www.youtube.com"])}}-->
+      <div class="controls">
+        <button onclick="playAll()">play</button>
+        <button onclick="pauseAll()">pause</button>
+      </div>
+      <div class="data-view" ng-controller="playerController">
         <div ng-repeat="key in messageData">
-          <div>{{key}}</div>
-          <!--<div>{{JSON.stringify(key)}}</div>-->
+          <div><pre>{{pretty(key)}}</pre></div>
         </div>
       </div>
     </div>
